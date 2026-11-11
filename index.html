@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>곰 사냥 작전 배치도</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>🐻 곰 사냥 작전 배치도</h1>
+  <input id="search" type="search" placeholder="이름 검색">
+  <button id="btn-fit">전체 보기</button>
+  <button id="btn-rotate">↻ 시점</button>
+  <button id="btn-lock">✋ 편집 중</button>
+  <span class="sep"></span>
+  <button id="btn-members">명단</button>
+  <button id="btn-settings">덫 좌표</button>
+  <button id="btn-auto">순서대로 재배치</button>
+  <button id="btn-export" class="primary">배치 내보내기</button>
+  <button id="btn-reset">공유본으로</button>
+  <span id="dirty" hidden>● 저장 안 된 편집 있음 (내보내기 후 커밋)</span>
+</header>
+<main>
+  <svg id="map"></svg>
+  <aside>
+    <div class="aside-head">순서 <span id="count"></span></div>
+    <div id="legend"></div>
+    <ul id="list"></ul>
+  </aside>
+</main>
+<div id="toast"></div>
+
+<dialog id="dlg-members">
+  <h2>명단</h2>
+  <p>한 줄에 한 명, <b>위에 있을수록 덫에 가까운 자리</b>를 받습니다.</p>
+  <textarea id="members-text" rows="20"></textarea>
+  <label><input id="members-reflow" type="checkbox" checked> 순서대로 자리 새로 계산 (끄면 기존 자리 유지, 새 인원만 빈자리)</label>
+  <div class="dlg-btns"><button data-close>취소</button><button id="members-apply" class="primary">적용</button></div>
+</dialog>
+
+<dialog id="dlg-settings">
+  <h2>덫 좌표</h2>
+  <p>게임에서 덫 가운데 칸 좌표를 넣으면 모든 성 좌표가 맞춰집니다.</p>
+  <div class="grid2">
+    <label>덫 A X <input id="ax" type="number"></label><label>Y <input id="ay" type="number"></label>
+    <label>덫 B X <input id="bx" type="number"></label><label>Y <input id="by" type="number"></label>
+    <label>덫 둘레 비울 칸 <input id="gap" type="number" min="0"></label>
+    <label>거리 기준 <select id="scoring"><option value="sum">두 덫 거리 합</option><option value="min">가까운 덫 하나</option></select></label>
+  </div>
+  <label><input id="shift-all" type="checkbox" checked> 덫 A 이동만큼 성 전체도 같이 이동</label>
+  <div class="dlg-btns"><button data-close>취소</button><button id="settings-apply" class="primary">적용</button></div>
+</dialog>
+
+<script src="data/plan.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/store.js"></script>
+<script src="js/render.js"></script>
+<script src="js/interact.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

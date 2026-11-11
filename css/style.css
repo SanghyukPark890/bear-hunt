@@ -1,0 +1,65 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font-family: "Pretendard", "Malgun Gothic", sans-serif; background: #12161c; color: #e6e9ee; }
+body { display: flex; flex-direction: column; }
+
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px; background: #1b222b; border-bottom: 1px solid #2c3540; }
+header h1 { font-size: 16px; margin: 0 10px 0 0; }
+header .sep { flex: 1; }
+#dirty { color: #f5b942; font-size: 12px; }
+button, input, select, textarea { font: inherit; color: inherit; background: #26303b; border: 1px solid #3a4655; border-radius: 6px; padding: 5px 10px; }
+button { cursor: pointer; }
+button:hover { background: #313d4b; }
+button.primary { background: #2f6fd6; border-color: #2f6fd6; }
+#search { width: 160px; }
+
+main { flex: 1; display: flex; min-height: 0; }
+#map { flex: 1; touch-action: none; cursor: grab; background: #0e1217; }
+#map:active { cursor: grabbing; }
+aside { width: 260px; display: flex; flex-direction: column; border-left: 1px solid #2c3540; background: #161c23; }
+.aside-head { padding: 8px 12px; font-weight: bold; }
+#count { color: #8a96a5; font-weight: normal; }
+#legend { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 0 12px 8px; font-size: 12px; color: #aab4c0; }
+#legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+#list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; font-size: 13px; }
+#list li { display: flex; align-items: center; gap: 6px; padding: 4px 12px; cursor: pointer; }
+#list li:hover { background: #222b35; }
+#list li.selected { background: #2f6fd6; }
+#list .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+#list .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#list .xy { color: #8a96a5; font-size: 11px; }
+
+/* 지도 */
+.grid-line { fill: none; stroke: #222a33; stroke-width: 0.04; }
+.ground { stroke: #2c3540; stroke-width: 0.1; }
+.trap rect { fill: #5a2a2a; stroke: #ff6b6b; stroke-width: 0.12; }
+text { text-anchor: middle; dominant-baseline: middle; pointer-events: none; user-select: none; }
+.trap-name { font-size: 0.6px; font-weight: bold; fill: #fff; }
+.trap-coord { font-size: 0.4px; fill: #ffd0d0; }
+.city { cursor: move; }
+.city rect { stroke: #0e1217; stroke-width: 0.08; }
+.city-rank { font-size: 0.42px; font-weight: bold; fill: #111; }
+.city-name { font-size: 0.34px; fill: #111; }
+.city-coord { font-size: 0.26px; fill: #222; }
+.city.selected rect, .city.hit rect { stroke: #fff; stroke-width: 0.16; }
+.city.dim { opacity: 0.25; }
+.city.dragging { opacity: 0.85; }
+.city.bad rect { stroke: #ff3b3b; stroke-width: 0.2; }
+.city.swap rect { stroke: #4dffb0; stroke-width: 0.2; }
+
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2f6fd6; padding: 8px 16px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+#toast.show { opacity: 1; }
+
+dialog { background: #1b222b; color: inherit; border: 1px solid #3a4655; border-radius: 10px; width: min(480px, 92vw); }
+dialog::backdrop { background: rgba(0,0,0,.6); }
+dialog h2 { margin-top: 0; font-size: 16px; }
+dialog p { font-size: 13px; color: #aab4c0; }
+dialog textarea { width: 100%; }
+dialog label { display: block; margin: 8px 0; font-size: 13px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.grid2 input, .grid2 select { width: 100%; margin-top: 2px; }
+.dlg-btns { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
+
+@media (max-width: 760px) {
+  main { flex-direction: column; }
+  aside { width: auto; height: 35vh; border-left: 0; border-top: 1px solid #2c3540; }
+}
