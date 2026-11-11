@@ -10,9 +10,12 @@ BT.render = (function () {
     return e;
   }
 
-  function tierOf(cfg, rank) {
-    for (var i = 0; i < cfg.tiers.length; i++) if (rank <= cfg.tiers[i].upTo) return cfg.tiers[i];
-    return cfg.tiers[cfg.tiers.length - 1];
+  function colorOf(cfg, c) { return cfg.groupColors[c.group] || cfg.groupColors[""]; }
+
+  // 곰1 3위 → "1-3", 그룹 없으면 전체 순번
+  function tagOf(cfg, c) {
+    var idx = cfg.traps.findIndex(function (t) { return t.id === c.group; });
+    return idx >= 0 ? (idx + 1) + "-" + c.grank : "#" + c.rank;
   }
 
   function bounds(cfg, cities) {
@@ -66,23 +69,22 @@ BT.render = (function () {
       var r = BT.layout.trapRect(t, cfg.trapSize);
       var g = el("g", { "class": "trap" }, world);
       el("rect", { x: r.x, y: r.y, width: r.w, height: r.h }, g);
-      label(g, view, r.x + r.w / 2, r.y + r.h / 2 - 0.2, "곰 덫 " + t.id, "trap-name");
+      label(g, view, r.x + r.w / 2, r.y + r.h / 2 - 0.2, "곰" + (cfg.traps.indexOf(t) + 1), "trap-name");
       label(g, view, r.x + r.w / 2, r.y + r.h / 2 + 0.6, "X:" + t.x + " Y:" + t.y, "trap-coord");
     });
 
     var q = (opts.search || "").trim().toLowerCase();
     cities.forEach(function (c) {
-      var tier = tierOf(cfg, c.rank);
       var hit = q && c.name.toLowerCase().indexOf(q) >= 0;
       var cls = "city" + (opts.selected === c.name ? " selected" : "") + (hit ? " hit" : "") + (q && !hit ? " dim" : "");
       var g = el("g", { "class": cls, transform: "translate(" + c.x + " " + c.y + ")", "data-name": c.name }, world);
-      el("rect", { x: 0.05, y: 0.05, width: s - 0.1, height: s - 0.1, rx: 0.15, fill: tier.color }, g);
-      label(g, view, s / 2, s / 2 - 0.35, "#" + c.rank, "city-rank");
+      el("rect", { x: 0.05, y: 0.05, width: s - 0.1, height: s - 0.1, rx: 0.15, fill: colorOf(cfg, c) }, g);
+      label(g, view, s / 2, s / 2 - 0.35, tagOf(cfg, c), "city-rank");
       label(g, view, s / 2, s / 2 + 0.15, short(c.name, 7), "city-name");
       label(g, view, s / 2, s / 2 + 0.62, c.x + "," + c.y, "city-coord");
       var d = BT.layout.trapDists(c.x + s / 2, c.y + s / 2, cfg.traps)
-        .map(function (v, i) { return cfg.traps[i].id + " " + v.toFixed(1); }).join(" / ");
-      el("title", {}, g).textContent = "#" + c.rank + " " + c.name + "\nX:" + c.x + " Y:" + c.y + "\n덫 거리 " + d;
+        .map(function (v, i) { return "곰" + (i + 1) + " " + v.toFixed(1); }).join(" / ");
+      el("title", {}, g).textContent = tagOf(cfg, c) + " " + c.name + "\nX:" + c.x + " Y:" + c.y + "\n덫 거리 " + d;
       c.el = g;
     });
 
@@ -96,5 +98,5 @@ BT.render = (function () {
     return view;
   }
 
-  return { draw: draw, tierOf: tierOf };
+  return { draw: draw, colorOf: colorOf, tagOf: tagOf };
 })();

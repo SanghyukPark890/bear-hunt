@@ -21,7 +21,7 @@
   function setDirty(on) { $("dirty").hidden = !on; }
 
   function recompute() {
-    cities = BT.layout.place(plan.config, plan.members, plan.positions);
+    cities = BT.layout.place(plan.config, plan.members, plan.positions, plan.groups);
     plan.positions = positionsOf(cities);
   }
 
@@ -34,25 +34,37 @@
   function persist() { BT.store.save(plan); setDirty(true); }
 
   function renderList() {
-    var q = state.search.trim().toLowerCase(), ul = $("list");
+    var q = state.search.trim().toLowerCase(), ul = $("list"), cfg = plan.config;
     ul.innerHTML = "";
-    cities.forEach(function (c) {
+    // 그룹별(곰1 → 곰2 → 미지정)로 묶고 그 안은 전투력 순
+    var order = cfg.traps.map(function (t) { return t.id; }).concat([""]);
+    var sorted = cities.slice().sort(function (a, b) {
+      return order.indexOf(a.group) - order.indexOf(b.group) || a.grank - b.grank;
+    });
+    var lastG = null;
+    sorted.forEach(function (c) {
       if (q && c.name.toLowerCase().indexOf(q) < 0) return;
+      if (c.group !== lastG) {
+        lastG = c.group;
+        var h = document.createElement("li"), gi = order.indexOf(c.group);
+        h.className = "group-head";
+        h.textContent = gi < cfg.traps.length ? "곰" + (gi + 1) + " 참여" : "미지정";
+        ul.appendChild(h);
+      }
       var li = document.createElement("li");
-      var tier = BT.render.tierOf(plan.config, c.rank);
-      li.innerHTML = '<span class="dot"></span><b>#' + c.rank + '</b> <span class="nm"></span><span class="xy">' + c.x + "," + c.y + "</span>";
-      li.querySelector(".dot").style.background = tier.color;
+      li.innerHTML = '<span class="dot"></span><b>' + BT.render.tagOf(cfg, c) + '</b> <span class="nm"></span><span class="xy">' + c.x + "," + c.y + "</span>";
+      li.querySelector(".dot").style.background = BT.render.colorOf(cfg, c);
       li.querySelector(".nm").textContent = c.name;
       if (state.selected === c.name) li.classList.add("selected");
       li.onclick = function () { select(c.name, true); };
       ul.appendChild(li);
     });
     $("count").textContent = cities.length + "명";
-    $("legend").innerHTML = plan.config.tiers.filter(function (t, i) {
-      return i === 0 || plan.config.tiers[i - 1].upTo < cities.length;
-    }).map(function (t, i, arr) {
-      var from = i === 0 ? 1 : arr[i - 1].upTo + 1, to = Math.min(t.upTo, cities.length);
-      return '<span><i style="background:' + t.color + '"></i>' + t.label + " " + from + "~" + to + "</span>";
+    $("legend").innerHTML = order.map(function (g, i) {
+      var n = cities.filter(function (c) { return c.group === g; }).length;
+      if (!n) return "";
+      var label = i < cfg.traps.length ? "곰" + (i + 1) : "미지정";
+      return '<span><i style="background:' + cfg.groupColors[g] + '"></i>' + label + " " + n + "명</span>";
     }).join("");
   }
 
@@ -87,16 +99,26 @@
   };
 
   // 명단 창
-  $("btn-members").onclick = function () { $("members-text").value = plan.members.join("\n"); $("dlg-members").showModal(); };
+  $("btn-members").onclick = function () {
+    var ids = plan.config.traps.map(function (t) { return t.id; });
+    $("members-text").value = plan.members.map(function (n) {
+      var gi = ids.indexOf((plan.groups || {})[n]);
+      return gi >= 0 ? n + " " + (gi + 1) : n;
+    }).join("\n");
+    $("dlg-members").showModal();
+  };
   $("members-apply").onclick = function () {
-    var seen = {}, list = [];
-    $("members-text").value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (n) {
-      var name = n, k = 2;
+    // 한 줄 = "이름 1" / "이름,2" / "이름 곰2". 끝의 1·2 가 곰 번호, 없으면 미지정.
+    var seen = {}, list = [], groups = {}, ids = plan.config.traps.map(function (t) { return t.id; });
+    $("members-text").value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (line) {
+      var m = line.match(/^(.*?)[\s,]+(?:곰)?([12])$/);
+      var n = m ? m[1].trim() : line, name = n, k = 2;
       while (seen[name]) name = n + "(" + k++ + ")";
       seen[name] = true; list.push(name);
+      if (m) groups[name] = ids[parseInt(m[2], 10) - 1];
     });
     if (!list.length) { toast("명단이 비었습니다"); return; }
-    plan.members = list;
+    plan.members = list; plan.groups = groups;
     if ($("members-reflow").checked) plan.positions = null;
     recompute(); persist(); redraw(true); $("dlg-members").close();
     toast(list.length + "명 반영");

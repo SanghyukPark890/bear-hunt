@@ -8,20 +8,19 @@ window.PLAN = {
     "scoring": "sum",
     "traps": [
       { "id": "A", "x": 500, "y": 500 },
-      { "id": "B", "x": 510, "y": 500 }
+      { "id": "B", "x": 525, "y": 500 }
     ],
-    "tiers": [
-      { "upTo": 10, "label": "집결 리더", "color": "#f5b942" },
-      { "upTo": 30, "label": "상위", "color": "#e8734a" },
-      { "upTo": 60, "label": "중위", "color": "#4a9ee8" },
-      { "upTo": 100, "label": "하위", "color": "#7bbf6a" },
-      { "upTo": 9999, "label": "기타", "color": "#9a9a9a" }
-    ]
+    "groupColors": { "A": "#e8734a", "B": "#4a9ee8", "": "#9a9a9a" }
   },
   "members": (function () {
     var list = [];
     for (var i = 1; i <= 100; i++) list.push("멤버" + String(i).padStart(3, "0"));
     return list;
+  })(),
+  "groups": (function () {
+    var g = {};
+    for (var i = 1; i <= 100; i++) g["멤버" + String(i).padStart(3, "0")] = i % 2 ? "A" : "B";
+    return g;
   })(),
   "positions": null
 };

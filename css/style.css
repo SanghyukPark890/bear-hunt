@@ -63,3 +63,5 @@ dialog label { display: block; margin: 8px 0; font-size: 13px; }
   main { flex-direction: column; }
   aside { width: auto; height: 35vh; border-left: 0; border-top: 1px solid #2c3540; }
 }
+#list li.group-head { cursor: default; font-weight: bold; color: #aab4c0; background: #1b222b; padding-top: 8px; }
+dialog code { background: #26303b; padding: 1px 5px; border-radius: 4px; }
