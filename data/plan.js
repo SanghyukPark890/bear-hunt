@@ -8,7 +8,7 @@ window.PLAN = {
     "scoring": "sum",
     "traps": [
       { "id": "A", "x": 500, "y": 500 },
-      { "id": "B", "x": 525, "y": 500 }
+      { "id": "B", "x": 513, "y": 500 }
     ],
     "groupColors": { "A": "#e8734a", "B": "#4a9ee8", "": "#9a9a9a" }
   },
