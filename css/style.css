@@ -33,18 +33,27 @@ aside { width: 260px; display: flex; flex-direction: column; border-left: 1px so
 .ground { stroke: #2c3540; stroke-width: 0.1; }
 .trap rect { fill: #5a2a2a; stroke: #ff6b6b; stroke-width: 0.12; }
 text { text-anchor: middle; dominant-baseline: middle; pointer-events: none; user-select: none; }
-.trap-name { font-size: 0.6px; font-weight: bold; fill: #fff; }
+.trap-name { font-size: 0.7px; font-weight: bold; fill: #fff; }
 .trap-coord { font-size: 0.4px; fill: #ffd0d0; }
+.seat rect { stroke-width: 0.08; }
+.vacant rect { fill-opacity: 0.25; stroke-dasharray: 0.2 0.12; }
+.seat-empty { font-size: 0.3px; fill: #8a96a5; }
+.seat-tag { font-size: 0.28px; font-weight: bold; fill: #6b3d00; }
 .city { cursor: move; }
-.city rect { stroke: #0e1217; stroke-width: 0.08; }
+.city.mismatch rect { stroke: #ff3b3b; stroke-width: 0.18; stroke-dasharray: 0.25 0.12; }
+.seat.buffed rect { stroke: #b388ff; stroke-width: 0.16; stroke-dasharray: none; }
+.seat.planet rect { stroke: #b388ff; stroke-width: 0.28; stroke-dasharray: none; }
+.seat-planet { font-size: 0.4px; }
+.seat.city.mismatch rect { stroke: #ff3b3b; stroke-dasharray: 0.25 0.12; }
+.seat.drop rect { stroke: #4dffb0; stroke-width: 0.22; stroke-dasharray: none; }
+.fixed-name { font-size: 0.32px; fill: #fff; }
+.fixed { pointer-events: none; }
 .city-rank { font-size: 0.42px; font-weight: bold; fill: #111; }
 .city-name { font-size: 0.34px; fill: #111; }
 .city-coord { font-size: 0.26px; fill: #222; }
 .city.selected rect, .city.hit rect { stroke: #fff; stroke-width: 0.16; }
 .city.dim { opacity: 0.25; }
 .city.dragging { opacity: 0.85; }
-.city.bad rect { stroke: #ff3b3b; stroke-width: 0.2; }
-.city.swap rect { stroke: #4dffb0; stroke-width: 0.2; }
 
 #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2f6fd6; padding: 8px 16px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
 #toast.show { opacity: 1; }
@@ -65,3 +74,7 @@ dialog label { display: block; margin: 8px 0; font-size: 13px; }
 }
 #list li.group-head { cursor: default; font-weight: bold; color: #aab4c0; background: #1b222b; padding-top: 8px; }
 dialog code { background: #26303b; padding: 1px 5px; border-radius: 4px; }
+#list li.group-head small { color: #8a96a5; font-weight: normal; }
+#list li.warn { color: #ff8a8a; white-space: normal; }
+#list li.planet-row { background: #2a2140; color: #d9c8ff; }
+#snapshot { font-size: 11px; color: #8a96a5; font-weight: normal; }

@@ -1,4 +1,4 @@
-// 조작: 휠 확대 · 배경 드래그 이동 · 성 드래그(빈칸 이동 / 다른 성 위면 자리 교환)
+// 조작: 휠 확대 · 배경 드래그 이동 · 성 드래그(빈 자리로 이동 / 다른 성 위면 자리 교환)
 window.BT = window.BT || {};
 BT.interact = (function () {
   var svg, ctx, vb = null, pan = null, drag = null;
@@ -17,16 +17,15 @@ BT.interact = (function () {
   function fit(view) { setViewBox({ x: view.fit.x, y: view.fit.y, w: view.fit.w, h: view.fit.h }); }
 
   function centerOn(view, x, y) {
-    var p = view.toSvg(x, y), w = Math.min(vb.w, 24), h = vb.h * (w / vb.w);
+    var p = view.toSvg(x, y), w = Math.min(vb.w, 20), h = vb.h * (w / vb.w);
     setViewBox({ x: p.x - w / 2, y: p.y - h / 2, w: w, h: h });
   }
 
-  function cityAt(cities, cx, cy, s, except) {
-    for (var i = 0; i < cities.length; i++) {
-      var c = cities[i];
-      if (c !== except && cx >= c.x && cx < c.x + s && cy >= c.y && cy < c.y + s) return c;
-    }
-    return null;
+  // 포인터가 올라간 자리 (자기 자리 제외)
+  function seatAt(pt, except) {
+    return ctx.base().seats.find(function (s) {
+      return s.id !== except && pt.x >= s.col && pt.x < s.col + s.w && pt.y >= s.row && pt.y < s.row + s.h;
+    }) || null;
   }
 
   function onWheel(e) {
@@ -38,14 +37,13 @@ BT.interact = (function () {
   function onDown(e) {
     var g = e.target.closest(".city");
     if (g && !ctx.readOnly()) {
-      var cities = ctx.cities(), c = cities.find(function (v) { return v.name === g.getAttribute("data-name"); });
+      var sid = g.getAttribute("data-seat"), s = ctx.base().seats.find(function (v) { return v.id === sid; });
       var pt = clientTo(ctx.view().world, e);
-      drag = { city: c, g: g, offX: pt.x - c.x, offY: pt.y - c.y, nx: c.x, ny: c.y, moved: false,
-               occ: BT.layout.occupancy(ctx.plan().config, cities, c) };
+      drag = { sid: sid, g: g, offX: pt.x - s.col, offY: pt.y - s.row, moved: false, target: null };
       g.classList.add("dragging");
       g.parentNode.appendChild(g);
     } else if (g) {
-      ctx.select(g.getAttribute("data-name"));
+      ctx.select(g.getAttribute("data-seat"));
       return;
     } else {
       pan = { x: e.clientX, y: e.clientY, vb: vb };
@@ -56,36 +54,26 @@ BT.interact = (function () {
   function onMove(e) {
     if (drag) {
       var pt = clientTo(ctx.view().world, e);
-      var nx = Math.round(pt.x - drag.offX), ny = Math.round(pt.y - drag.offY);
-      if (nx === drag.nx && ny === drag.ny) return;
-      drag.nx = nx; drag.ny = ny; drag.moved = true;
-      drag.g.setAttribute("transform", "translate(" + nx + " " + ny + ")");
-      var s = ctx.plan().config.citySize;
-      var swap = cityAt(ctx.cities(), pt.x, pt.y, s, drag.city);
-      var ok = BT.layout.fits(drag.occ, nx, ny, s);
-      drag.g.classList.toggle("bad", !ok && !swap);
-      drag.g.classList.toggle("swap", !!swap);
+      drag.moved = true;
+      drag.g.setAttribute("transform", "translate(" + (pt.x - drag.offX) + " " + (pt.y - drag.offY) + ")");
+      var t = seatAt(pt, drag.sid);
+      if (drag.target !== t) {
+        svg.querySelectorAll(".drop").forEach(function (n) { n.classList.remove("drop"); });
+        drag.target = t;
+        if (t) svg.querySelector('[data-seat="' + t.id + '"]').classList.add("drop");
+      }
     } else if (pan) {
       var r = svg.getBoundingClientRect(), k = pan.vb.w / r.width;
       setViewBox({ x: pan.vb.x - (e.clientX - pan.x) * k, y: pan.vb.y - (e.clientY - pan.y) * k, w: pan.vb.w, h: pan.vb.h });
     }
   }
 
-  function onUp(e) {
+  function onUp() {
     if (drag) {
       var d = drag; drag = null;
-      if (!d.moved) { ctx.select(d.city.name); return; }
-      var s = ctx.plan().config.citySize, pt = clientTo(ctx.view().world, e);
-      var swap = cityAt(ctx.cities(), pt.x, pt.y, s, d.city);
-      if (swap) {
-        var ox = d.city.x, oy = d.city.y;
-        ctx.commit([[d.city.name, swap.x, swap.y], [swap.name, ox, oy]], "자리 교환: " + d.city.name + " ↔ " + swap.name);
-      } else if (BT.layout.fits(d.occ, d.nx, d.ny, s)) {
-        ctx.commit([[d.city.name, d.nx, d.ny]], "이동: " + d.city.name + " → " + d.nx + "," + d.ny);
-      } else {
-        ctx.toast("겹치는 자리라 되돌렸습니다");
-        ctx.redraw();
-      }
+      if (!d.moved) { ctx.select(d.sid); return; }
+      if (d.target) ctx.swap(d.sid, d.target.id);
+      else { ctx.toast("자리 위에 놓아야 합니다"); ctx.redraw(); }
     }
     pan = null;
   }

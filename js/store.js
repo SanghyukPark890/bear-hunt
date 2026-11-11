@@ -1,7 +1,7 @@
 // 저장: 편집 중 내용은 브라우저(localStorage), 공유 정본은 data/plan.js
 window.BT = window.BT || {};
 BT.store = (function () {
-  var KEY = "bt.plan.v2";
+  var KEY = "bt.plan.v3";
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
 

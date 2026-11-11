@@ -15,8 +15,7 @@
   <button id="btn-lock">✋ 편집 중</button>
   <span class="sep"></span>
   <button id="btn-members">명단</button>
-  <button id="btn-settings">덫 좌표</button>
-  <button id="btn-auto">순서대로 재배치</button>
+  <button id="btn-auto">명단 순서로 재배정</button>
   <button id="btn-export" class="primary">배치 내보내기</button>
   <button id="btn-reset">공유본으로</button>
   <span id="dirty" hidden>● 저장 안 된 편집 있음 (내보내기 후 커밋)</span>
@@ -24,7 +23,7 @@
 <main>
   <svg id="map"></svg>
   <aside>
-    <div class="aside-head">순서 <span id="count"></span></div>
+    <div class="aside-head">배치 <span id="count"></span><div id="snapshot"></div></div>
     <div id="legend"></div>
     <ul id="list"></ul>
   </aside>
@@ -33,25 +32,16 @@
 
 <dialog id="dlg-members">
   <h2>명단</h2>
-  <p>한 줄에 한 명, <b>이름 뒤에 곰 번호(1 또는 2)</b>. 예: <code>홍길동 1</code><br>줄 순서 = 전투력 순. 곰마다 <b>위에 있을수록 자기 덫에 가까운 자리</b>를 받습니다.</p>
+  <p>한 줄에 한 명, <b>줄 순서 = 전투력 순</b>. 이름 뒤에 참여 곰 번호:<br>
+    <code>홍길동 1</code> 곰1 · <code>홍길동 2</code> 곰2 · <code>홍길동 12</code> 둘 다 · <code>홍길동 0</code> 미참여 · 번호 없음 = 미지정<br>
+    행성 버프 인원은 맨 뒤에 <code>*</code> (예: <code>홍길동 1 *</code>) → 먼저 앉히고, 둘러싼 1줄을 같은 곰 전투력 상위로 채웁니다.<br>
+    같은 구역 자리 중 <b>덫에 가까운 자리부터</b> 순서대로 배정합니다.</p>
   <textarea id="members-text" rows="20"></textarea>
-  <label><input id="members-reflow" type="checkbox" checked> 순서대로 자리 새로 계산 (끄면 기존 자리 유지, 새 인원만 빈자리)</label>
+  <label><input id="members-keep" type="checkbox"> 지금 자리 유지 (새 인원만 빈 자리에)</label>
   <div class="dlg-btns"><button data-close>취소</button><button id="members-apply" class="primary">적용</button></div>
 </dialog>
 
-<dialog id="dlg-settings">
-  <h2>덫 좌표</h2>
-  <p>게임에서 덫 가운데 칸 좌표를 넣으면 모든 성 좌표가 맞춰집니다.</p>
-  <div class="grid2">
-    <label>덫 A X <input id="ax" type="number"></label><label>Y <input id="ay" type="number"></label>
-    <label>덫 B X <input id="bx" type="number"></label><label>Y <input id="by" type="number"></label>
-    <label>덫 둘레 비울 칸 <input id="gap" type="number" min="0"></label>
-    <label>거리 기준 <select id="scoring"><option value="sum">두 덫 거리 합</option><option value="min">가까운 덫 하나</option></select></label>
-  </div>
-  <label><input id="shift-all" type="checkbox" checked> 덫 A 이동만큼 성 전체도 같이 이동</label>
-  <div class="dlg-btns"><button data-close>취소</button><button id="settings-apply" class="primary">적용</button></div>
-</dialog>
-
+<script src="data/base.js"></script>
 <script src="data/plan.js"></script>
 <script src="js/layout.js"></script>
 <script src="js/store.js"></script>
